@@ -17,7 +17,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
-#include <syslog.h>
 #include <unistd.h>
 #include <err.h>
 
@@ -283,7 +282,6 @@ pid_t gettmuxshellpidbyclientpid(pid_t client_pid)
 
 	snprintf(command, 1024, command_format, client_pid);
 	execscript(command, "%d", &shell_pid);
-	syslog(LOG_INFO, "Executing command \"%s\" returned shell PID \"%d\"", command, shell_pid);
 
 	return shell_pid;
 }
@@ -1257,7 +1255,6 @@ void spawn(const Arg * arg)
       char name_filename[32], shell_name[32];
       FILE * name_file;
 
-      syslog(LOG_INFO, "sel: %d\tclients[sel]: %p\tclients[sel]->pid: %d", sel, clients[sel], clients[sel]->pid);
       client_pid = getchildpid(clients[sel]->pid);
 			shell_pid = gettmuxshellpidbyclientpid(client_pid);
       status = getpidcwd(shell_pid, sel_cwd, PATH_MAX);
@@ -1268,10 +1265,8 @@ void spawn(const Arg * arg)
       {
         fscanf(name_file, "%32s %32s", name_filename, shell_name);
         fclose(name_file);
-        syslog(LOG_INFO, "shell name: %s", shell_name);
       }
 
-      syslog(LOG_INFO, "client_pid: %d\tshell_pid: %d\tsel_cwd:%16s", client_pid, shell_pid, sel_cwd);
       if (status == 0)
         chdir(sel_cwd);
     }
